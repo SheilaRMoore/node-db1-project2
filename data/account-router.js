@@ -25,4 +25,54 @@ router.get("/", (req, res) => {
       });
   });
 
+  router.post('/', (req, res) => {
+    const accountData = req.body
+    db('accounts')
+    .insert(accountData, 'id')
+    .then(newId => {
+        const id = newId[0];
+        db('accounts')
+        .where({id})
+        .first()
+        .then(newAccount => {
+            res.status(200).json(newAccount)
+        })
+        .catch(error => {
+            res.status(500).json({error: 'Sorry Your account did not post'})
+        })
+    }) 
+
+    router.put("/:id", (req, res) => {
+        const update = req.body;
+        const { id } = req.params;
+        db("accounts")
+          .where({ id })
+          .update(update)
+          .then((count) => {
+            if (count > 0) {
+              res.status(200).json({ message: "updated successfully" });
+            } else {
+              res.status(404).json({ message: "Unsuccessful" });
+            };
+          });
+        });
+    });
+
+
+    router.delete("/:id", (req, res) => {
+        db("accounts")
+          .where("id", "=", req.params.id)
+          .del()
+          .then(count => {
+            if (count > 0) {
+              res.status(200).json(count);
+            } else {
+              res.status(404).json({ message: "not found" });
+            }
+          })
+          .catch(error => {
+            res.status(500).json({ message: "error deleting the account" });
+          });
+      });
+      
   module.exports = router;
